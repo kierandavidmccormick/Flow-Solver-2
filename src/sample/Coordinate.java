@@ -25,4 +25,36 @@ public class Coordinate extends Object {
 		}
 		return 0;
 	}
+	
+	Coordinate add(Coordinate c){
+		return new Coordinate(x + c.x, y + c.y);
+	}
+	
+	Coordinate sub(Coordinate c){
+		return new Coordinate(x - c.x, y - c.y);
+	}
+	
+	public boolean equals(Object o) {
+		if (o == this){
+			return true;
+		} else if (!(o instanceof Coordinate)){
+			return false;
+		}
+		return x == ((Coordinate)o).x && y == ((Coordinate)o).y;
+	}
+	
+	public int hashCode() {
+		int result = 17;
+		result = 31 * result + x;
+		result = 31 * result + y;
+		return result;
+	}
+	
+	public void print(){
+		System.out.println(x + " " + y);
+	}
+	
+	public String toString(){
+		return x + " " + y;
+	}
 }

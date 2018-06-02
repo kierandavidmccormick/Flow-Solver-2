@@ -54,6 +54,19 @@ public class FlowBoard {
 		}
 	}
 	
+	public void addLBends(){
+		while (addLBend()){}
+	}
+	
+	public boolean addLBend(){
+		for (Node n : getAllNodes()){
+			if (n.addLBend(this)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void checkAll(){
 		for (Node n : getAllNodes()){
 			n.checkConnections(true);

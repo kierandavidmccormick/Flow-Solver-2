@@ -43,7 +43,15 @@ public class Main extends Application {
 	    background.setFill(Color.BLACK);
 	    root.getChildren().add(0, background);
 	    circles.toFront();
-	    FlowBoard f = new FlowBoard(0,0,4,0, 0,1,6,0, 2,1,4,2, 6,1,0,4, 2,4,5,5, 0,2,4,5);
+	    FlowBoard f = new FlowBoard(0,0,4,0, 0,1,6,0, 2,1,4,2, 6,1,0,4, 2,3,5,5, 0,2,4,5);
+	    // **** ADD TESTS BELOW HERE:
+	    //f.nodes[0][6].addLBend(f);
+	    //f.addLBends();
+	    f.addLBend();
+	    f.addLBend();
+	    f.addLBend();
+	    f.addLBend();
+	    // **** AND ABOVE HERE
 	    setGUIElements(f);
 	    createGUIElements(circleArray);
         primaryStage.setScene(new Scene(root, DIM * 50, DIM * 50));

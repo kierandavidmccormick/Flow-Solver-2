@@ -58,6 +58,7 @@ public class Node {
 		n.potentialConnections.remove(this);
 		if (check){
 			checkConnections(true);
+			n.checkConnections(true);
 		}
 	}
 	
@@ -68,6 +69,7 @@ public class Node {
 		n.potentialConnections.remove(this);
 		if (check){
 			checkConnections(true);
+			n.checkConnections(true);
 		}
 	}
 	
@@ -100,5 +102,37 @@ public class Node {
 		}
 	}
 	
-	//TODO: checking of connections, addition of actualConnections and subtraction of potentialConnections
+	public boolean addLBend(FlowBoard f){
+		Coordinate bendC = hasLBend();
+		if (bendC != null){
+			Node bendN = f.nodes[bendC.x][bendC.y];
+			if (!bendN.isEnd && bendN.actualConnections.size() == 0) {
+				Coordinate offset = bendC.sub(location);
+				//if (bendN.actualConnections.size() != 0) {
+				//	System.err.println("****** ERROR: ILLEGAL CREATION OF L-BEND AT: (" + bendC.toString() + ")");
+				//	return false;
+				//}
+				bendN.actualizeConnection(f.nodes[bendC.x + offset.x][bendC.y], true);
+				bendN.actualizeConnection(f.nodes[bendC.x][bendC.y + offset.y], true);
+				int i = 0;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Coordinate hasLBend(){       //returns coordinate of created L-bend as a result of this node and its connections, otherwise returns null
+		if (actualConnections.size() == 2){
+			Coordinate c1 = getConnectionDirection(actualConnections.get(0));
+			Coordinate c2 = getConnectionDirection(actualConnections.get(1));
+			if (!c1.add(c2).equals(new Coordinate(0,0))){
+				return location.add(c1).add(c2);
+			}
+		}
+		return null;
+	}
+	
+	public Coordinate getConnectionDirection(Node n){       //returns coordinate c such that this.location.add(c).equals(n.location)
+		return n.location.sub(location);
+	}
 }
