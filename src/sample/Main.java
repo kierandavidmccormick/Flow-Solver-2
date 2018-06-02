@@ -47,10 +47,7 @@ public class Main extends Application {
 	    // **** ADD TESTS BELOW HERE:
 	    //f.nodes[0][6].addLBend(f);
 	    //f.addLBends();
-	    f.addLBend();
-	    f.addLBend();
-	    f.addLBend();
-	    f.addLBend();
+	    f.addLBends();
 	    // **** AND ABOVE HERE
 	    setGUIElements(f);
 	    createGUIElements(circleArray);

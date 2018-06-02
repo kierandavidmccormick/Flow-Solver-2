@@ -54,6 +54,17 @@ public class FlowBoard {
 		}
 	}
 	
+	public boolean hasUBend(){
+		for (int i = 0; i < Main.DIM - 1; i++){
+			for (int j = 0; j < Main.DIM - 1; j++){
+				if (nodes[i][j].getUbendDirection(this) != null){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public void addLBends(){
 		while (addLBend()){}
 	}
