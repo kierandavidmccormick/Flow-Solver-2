@@ -72,6 +72,108 @@ public class FlowBoard {
 		return false;
 	}
 	
+	public LinkedList<Coordinate> getConnectedCoordinates(Coordinate start){
+		boolean[][] inValidNodes = new boolean[nodes.length][nodes[0].length];
+		LinkedList<Coordinate> edgeCoordinates = new LinkedList<>();
+		edgeCoordinates.add(start);
+		while(edgeCoordinates.size() > 0){
+			Coordinate c = edgeCoordinates.get(0);
+			edgeCoordinates.remove(0);
+			for (Direction d : Direction.directions) {
+				Coordinate c2 = c.add(d.toCoordinate());
+				if (c2.isInBounds() && !inValidNodes[c2.x][c2.y]){      //new
+					inValidNodes[c2.x][c2.y] = true;
+					if (c2.isEmpty(this)){
+						edgeCoordinates.add(c2);
+					}
+				}
+			}
+			
+		}
+		LinkedList<Coordinate> connectedCoordinates = new LinkedList<>();
+		for (int i = 0; i < inValidNodes.length; i++){
+			for (int j = 0; j < inValidNodes[0].length; j++){
+				if (inValidNodes[i][j]){
+					connectedCoordinates.add(new Coordinate(i, j));
+				}
+			}
+		}
+		return connectedCoordinates;
+	}
+	
+	public Boolean connected(Coordinate start, Coordinate end){
+		boolean[][] inValidNodes = new boolean[nodes.length][nodes[0].length];
+		LinkedList<Coordinate> edgeCoordinates = new LinkedList<>();
+		edgeCoordinates.add(start);
+		while(edgeCoordinates.size() > 0){
+			Coordinate c = edgeCoordinates.get(0);
+			edgeCoordinates.remove(0);
+			for (Direction d : Direction.directions) {
+				Coordinate c2 = c.add(d.toCoordinate());
+				if (c2.equals(end)){
+					return true;
+				} else if (c2.isInBounds() && c2.isEmpty(this) && !inValidNodes[c2.x][c2.y]) {
+					edgeCoordinates.add(c2);
+					inValidNodes[c2.x][c2.y] = true;
+				}
+			}
+		}
+		return false;
+	}
+	/*      //TODO: adapt this to a lack of flows, workingNode tracking, etc.
+	public Boolean allNodesReachable(){
+		boolean[][][] inValidNodes = new boolean[nodes.length][nodes[0].length][2];
+		LinkedList<Coordinate> connectedCoordinates = new LinkedList<>();
+		for (Flow f : flows){
+			if (f.workingNodes.size() > 0){
+				connectedCoordinates.addAll(getConnectedCoordinates(f.workingNodes.get(0).loc));
+				break;
+			}
+		}
+		for (Coordinate coordinate : connectedCoordinates) {
+			inValidNodes[coordinate.x][coordinate.y][0] = true;
+		}
+		connectedCoordinates.clear();
+		for (Flow f : flows){
+			if (f.workingNodes.size() > 1){
+				connectedCoordinates.addAll(getConnectedCoordinates(f.workingNodes.get(1).loc));
+				break;
+			}
+		}
+		for (Coordinate coordinate : connectedCoordinates) {
+			inValidNodes[coordinate.x][coordinate.y][1] = true;
+		}
+		LinkedList<Coordinate> unConnectedCoordinates = new LinkedList<>();
+		for (int i = 0; i < inValidNodes.length; i++) {
+			for (int j = 0; j < inValidNodes[0].length; j++) {
+				if (!(inValidNodes[i][j][0] && inValidNodes[i][j][1]) && !nodes[i][j].isSolved) {        //new
+					unConnectedCoordinates.add(new Coordinate(i, j));
+				}
+			}
+		}
+		for (int i = 0; i < unConnectedCoordinates.size(); i++){
+			boolean isConnected = false;
+			for (Flow flow : flows){
+				if (!flow.isSolved){
+					if (connected(flow.workingNodes.get(0).loc, unConnectedCoordinates.get(0)) && connected(flow.workingNodes.get(1).loc, unConnectedCoordinates.get(0))) {
+						unConnectedCoordinates.removeAll(getConnectedCoordinates(unConnectedCoordinates.get(0)));
+						if (unConnectedCoordinates.size() == 0){
+							return true;
+						}
+						unConnectedCoordinates.remove(0);
+						i = 0;
+						isConnected = true;
+						break;
+					}
+				}
+			}
+			if (!isConnected){
+				return false;
+			}
+		}
+		return true;
+	}
+	*/
 	public boolean fatalError(){
 		return hasUBend();
 	}

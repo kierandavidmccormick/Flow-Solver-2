@@ -57,4 +57,12 @@ public class Coordinate extends Object {
 	public String toString(){
 		return x + " " + y;
 	}
+	
+	public Boolean isInBounds(){
+		return x >= 0 && x < Main.DIM && y >= 0 && y < Main.DIM;
+	}
+	
+	public Boolean isEmpty(FlowBoard f){
+		return f.nodes[x][y] == null || f.nodes[x][y].color == -1;
+	}
 }
