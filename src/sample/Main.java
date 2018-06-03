@@ -48,6 +48,8 @@ public class Main extends Application {
 	    //f.nodes[0][6].addLBend(f);
 	    //f.addLBends();
 	    f.addLBends();
+	    //f.nodes[2][0].actualizeConnection(f.nodes[3][0], true);
+	    f.nodes[1][2].checkConnections(true);
 	    // **** AND ABOVE HERE
 	    setGUIElements(f);
 	    createGUIElements(circleArray);
@@ -64,7 +66,9 @@ public class Main extends Application {
     		for (int j = 0; j < DIM; j++){
     			if (f.nodes[i][j].color != -1){
     				circleArray[i][j].setFill(ColorSet.colorArray[f.nodes[i][j].color]);
-    				circleArray[i][j].setRadius(10);
+			    }
+			    if (f.nodes[i][j].isEnd){
+				    circleArray[i][j].setRadius(10);
 			    }
 			    if (i < DIM - 1 && f.nodes[i][j].actualConnections.contains(f.nodes[i+1][j])){
     			    lineGroupArray[i][j].horiz.setStroke(Color.GREEN);

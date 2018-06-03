@@ -56,6 +56,11 @@ public class Node {
 		potentialConnections.remove(n);
 		n.actualConnections.add(this);
 		n.potentialConnections.remove(this);
+		if (n.color != -1){
+			this.color = n.color;
+		} else if (this.color != -1){
+			n.color = this.color;
+		}
 		if (check){
 			checkConnections(true);
 			n.checkConnections(true);
@@ -74,34 +79,64 @@ public class Node {
 	}
 	
 	public void checkConnections(boolean spread){
+		//if has potential connection to another node of a different color, kill that connection
+		//if has potential connection to another node of the same color, actualize that connection
+		//if sum of actual connections and potential connections is max, convert all potential connections into actual connections
+		//if has max actual connections, delete all other potential connections
+		
 		LinkedList<Node> modified = new LinkedList<>();
 		LinkedList<Node> toActualize = new LinkedList<>();
-		if (potentialConnections.size() + actualConnections.size() == (isEnd ? 1 : 2)){
-			for (Node n : potentialConnections){
-				toActualize.add(n);
-				modified.add(n);
-			}
-		}
-		for (Node n : toActualize){
-			actualizeConnection(n, false);
-		}
 		LinkedList<Node> toDisConnect = new LinkedList<>();
-		if (actualConnections.size() == (isEnd ? 1 : 2)){
-			for (Node n : potentialConnections){
-				toDisConnect.add(n);
-				modified.add(n);
+		
+		for (Node n : potentialConnections){
+			if (color != -1 && n.color != -1){
+				if (color != n.color) {
+					toDisConnect.add(n);
+				} else {
+					toActualize.add(n);
+				}
+				if (!modified.contains(n)){
+					modified.add(n);
+				}
 			}
 		}
 		for (Node n : toDisConnect){
 			disConnect(n, false);
 		}
-		if (spread){
-			for (Node n : modified){
+		for (Node n : toActualize){
+			actualizeConnection(n, false);
+		}
+		toActualize.clear();
+		toDisConnect.clear();
+		if (potentialConnections.size() + actualConnections.size() == (isEnd ? 1 : 2)){
+			for (Node n : potentialConnections){
+				toActualize.add(n);
+				if (!modified.contains(n)) {
+					modified.add(n);
+				}
+			}
+		}
+		for (Node n : toActualize){
+			actualizeConnection(n, false);
+		}
+		if (actualConnections.size() == (isEnd ? 1 : 2)){
+			for (Node n : potentialConnections){
+				toDisConnect.add(n);
+				if (!modified.contains(n)) {
+					modified.add(n);
+				}
+			}
+		}
+		for (Node n : toDisConnect){
+			disConnect(n, false);
+		}
+		
+		if (spread) {
+			for (Node n : modified) {
 				n.checkConnections(true);
 			}
 		}
 	}
-	
 	public boolean addLBend(FlowBoard f){
 		Coordinate bendC = hasLBend();
 		if (bendC != null){
