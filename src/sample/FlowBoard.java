@@ -103,12 +103,17 @@ public class FlowBoard {
 		return nodesList;
 	}
 	
-	public Collection<FlowBoard> getApplicableChildren(){
-		HashSet<FlowBoard> newBoards = new HashSet<>(4);
+	public Collection<FlowBoard> getApplicableChildren(LinkedList<Node> connectionsToDelete1, LinkedList<Node> connectionsToDelete2){
+		HashSet<FlowBoard> newBoards = new HashSet<>();
 		boolean oneChild = false;
 		for (Node n : getAllNodes()){
 			if (n.potentialConnections.size() >= 2) {
-				LinkedList<FlowBoard> newBoardsTemp = new LinkedList<>(n.getBoardChildren(this));
+				LinkedList<Node> connectionsToDeleteTemp = new LinkedList<>();
+				LinkedList<FlowBoard> newBoardsTemp = new LinkedList<>(n.getBoardChildren(this, connectionsToDeleteTemp));
+				for (Node toDelete : connectionsToDeleteTemp){
+					connectionsToDelete1.add(n);
+					connectionsToDelete2.add(toDelete);
+				}
 				if (newBoardsTemp.size() == 0) {
 					return new HashSet<>(0);
 				} else if (newBoardsTemp.size() == 1 && !oneChild) {
@@ -124,10 +129,19 @@ public class FlowBoard {
 	}
 	
 	public void addAllCertainMoves(){       //inevitably going to be replaced with proper tree implementation
-		LinkedList<FlowBoard> newBoards = new LinkedList<>(getApplicableChildren());
+		LinkedList<Node> connectionsToDelete1 = new LinkedList<>();
+		LinkedList<Node> connectionsToDelete2 = new LinkedList<>();
+		LinkedList<FlowBoard> newBoards = new LinkedList<>(getApplicableChildren(connectionsToDelete1, connectionsToDelete2));
 		while (newBoards.size() == 1){
-			this.nodes = newBoards.get(0).nodes;        //painful
-			newBoards = new LinkedList<>(getApplicableChildren());
+			nodes = newBoards.get(0).nodes;        //painful
+			for (int i = 0; i < connectionsToDelete1.size(); i++){
+				Node n = connectionsToDelete1.get(i);
+				Node m = connectionsToDelete2.get(i);
+				nodes[n.location.x][n.location.y].disConnect(nodes[m.location.x][m.location.y], true);      //could cause problems with deletion of connections invalid in original board, but fine in modified board, questionable whether that can exist or not, and if so, what to do about it
+			}
+			connectionsToDelete1.clear();
+			connectionsToDelete2.clear();
+			newBoards = new LinkedList<>(getApplicableChildren(connectionsToDelete1, connectionsToDelete2));
 		}
 	}
 }

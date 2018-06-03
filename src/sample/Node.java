@@ -234,13 +234,15 @@ public class Node {
 		return null;
 	}
 	
-	public Collection<FlowBoard> getBoardChildren(FlowBoard f){
+	public Collection<FlowBoard> getBoardChildren(FlowBoard f, LinkedList<Node> connectionsToDelete){      //assumes connectionsToDelete is permanent beyond method termination and empty
 		LinkedList<FlowBoard> newBoards = new LinkedList<>();
 		for (Node n : potentialConnections){
 			FlowBoard newBoard = new FlowBoard(f);
 			newBoard.nodes[location.x][location.y].actualizeConnection(newBoard.nodes[n.location.x][n.location.y], true);
 			if (!newBoard.fatalError()){
 				newBoards.add(newBoard);
+			} else {
+				connectionsToDelete.add(n);
 			}
 		}
 		return newBoards;
