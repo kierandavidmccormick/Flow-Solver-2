@@ -1,6 +1,8 @@
 package sample;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 /**
@@ -30,11 +32,21 @@ public class Node {
 	}
 	
 	public Node(Node n){
-		actualConnections = new ArrayList<>(n.actualConnections);
-		potentialConnections = new ArrayList<>(n.potentialConnections);
+		actualConnections = new ArrayList<>(n.actualConnections.size());
+		potentialConnections = new ArrayList<>(n.potentialConnections.size());
 		color = n.color;
 		isEnd = n.isEnd;
 		location = new Coordinate(n.location.x, n.location.y);
+	}
+	
+	public boolean equals(Object o){
+		if (o == this){
+			return true;
+		} else if (o instanceof Node){
+			Node n = (Node)o;
+			return color == n.color && location.equals(n.location);
+		}
+		return false;
 	}
 	
 	public void connect(Node n){
@@ -87,16 +99,29 @@ public class Node {
 		LinkedList<Node> modified = new LinkedList<>();
 		LinkedList<Node> toActualize = new LinkedList<>();
 		LinkedList<Node> toDisConnect = new LinkedList<>();
-		
-		for (Node n : potentialConnections){
-			if (color != -1 && n.color != -1){
+		for (Node n : potentialConnections) {
+			int i = 0;
+			if (color != -1 && n.color != -1) {
 				if (color != n.color) {
 					toDisConnect.add(n);
 				} else {
 					toActualize.add(n);
 				}
-				if (!modified.contains(n)){
-					modified.add(n);
+				modified.add(n);
+			}
+		}
+		for (Node n : actualConnections){
+			if (color != n.color){
+				if (color != -1){
+					n.color = color;
+					if (!modified.contains(n)){
+						modified.add(n);
+					}
+				} else {
+					color = n.color;
+					if (!modified.contains(this)){
+						modified.add(this);         //questionable, but works
+					}
 				}
 			}
 		}
@@ -207,5 +232,17 @@ public class Node {
 			}
 		}
 		return null;
+	}
+	
+	public Collection<FlowBoard> getBoardChildren(FlowBoard f){
+		LinkedList<FlowBoard> newBoards = new LinkedList<>();
+		for (Node n : potentialConnections){
+			FlowBoard newBoard = new FlowBoard(f);
+			newBoard.nodes[location.x][location.y].actualizeConnection(newBoard.nodes[n.location.x][n.location.y], true);
+			if (!newBoard.fatalError()){
+				newBoards.add(newBoard);
+			}
+		}
+		return newBoards;
 	}
 }

@@ -1,8 +1,6 @@
 package sample;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 /**
  * Created by kieranmccormick on 6/1/18.
@@ -38,7 +36,16 @@ public class FlowBoard {
 				nodes[i][j] = new Node(f.nodes[i][j]);
 			}
 		}
-		connectAll();       //Node connections may be buggy when copied, avoid if possible
+		for (int i = 0; i < f.nodes.length; i++) {
+			for (int j = 0; j < f.nodes[0].length; j++) {
+				for (Node n : f.nodes[i][j].actualConnections){
+					nodes[i][j].actualConnections.add(nodes[n.location.x][n.location.y]);
+				}
+				for (Node n : f.nodes[i][j].potentialConnections){
+					nodes[i][j].potentialConnections.add(nodes[n.location.x][n.location.y]);
+				}
+			}
+		}
 	}
 	
 	public void connectAll(){
@@ -63,6 +70,10 @@ public class FlowBoard {
 			}
 		}
 		return false;
+	}
+	
+	public boolean fatalError(){
+		return hasUBend();
 	}
 	
 	public void addLBends(){
@@ -90,5 +101,33 @@ public class FlowBoard {
 			nodesList.addAll(Arrays.asList(nodes[i]).subList(0, Main.DIM));
 		}
 		return nodesList;
+	}
+	
+	public Collection<FlowBoard> getApplicableChildren(){
+		HashSet<FlowBoard> newBoards = new HashSet<>(4);
+		boolean oneChild = false;
+		for (Node n : getAllNodes()){
+			if (n.potentialConnections.size() >= 2) {
+				LinkedList<FlowBoard> newBoardsTemp = new LinkedList<>(n.getBoardChildren(this));
+				if (newBoardsTemp.size() == 0) {
+					return new HashSet<>(0);
+				} else if (newBoardsTemp.size() == 1 && !oneChild) {
+					newBoards.clear();
+					newBoards.addAll(newBoardsTemp);
+					oneChild = true;
+				} else if (!oneChild) {
+					newBoards.addAll(newBoardsTemp);
+				}
+			}
+		}
+		return newBoards;
+	}
+	
+	public void addAllCertainMoves(){       //inevitably going to be replaced with proper tree implementation
+		LinkedList<FlowBoard> newBoards = new LinkedList<>(getApplicableChildren());
+		while (newBoards.size() == 1){
+			this.nodes = newBoards.get(0).nodes;        //painful
+			newBoards = new LinkedList<>(getApplicableChildren());
+		}
 	}
 }
