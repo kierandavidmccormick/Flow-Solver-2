@@ -50,8 +50,14 @@ public class Main extends Application {
 	    //FlowBoard f = new FlowBoard(0,0,2,6, 2,2,3,1, 1,3,9,6, 3,2,8,4, 2,3,6,3, 1,4,6,8, 5,0,9,0, 3,3,6,4, 1,7,8,5, 1,8,4,9, 5,6,8,8, 0,7,1,9);        //10x10 c: trivial n:
 	    // **** ADD TESTS BELOW HERE:
 	    //f.addLBends();
-	    f.addAllCertainMoves();
-	    ArrayList<Node[]> nodeAr = f.getWorkingNodes();
+	    //f.addAllCertainMoves();
+	    f.nodes[2][1].actualizeConnection(f.nodes[2][0], true);
+	    f.nodes[3][1].actualizeConnection(f.nodes[3][2], true);
+	    f.nodes[3][2].actualizeConnection(f.nodes[3][3], true);
+	    f.nodes[4][4].actualizeConnection(f.nodes[4][5], true);
+	    f.nodes[4][7].actualizeConnection(f.nodes[4][8], true);
+	    f.nodes[4][8].actualizeConnection(f.nodes[4][9], true);
+	    ArrayList<ArrayList<Node>> connectedAreas = f.getConnectedAreas();
 	    // **** AND ABOVE HERE
 	    setGUIElements(f);
 	    createGUIElements(circleArray);

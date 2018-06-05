@@ -196,6 +196,27 @@ public class FlowBoard {
 		return workingNodes;
 	}
 	
+	public ArrayList<ArrayList<Node>> getConnectedAreas(){
+		ArrayList<ArrayList<Node>> connectedAreas = new ArrayList<>();
+		ArrayList<Node> unconnectedNodes = new ArrayList<>(getAllNodes());
+		LinkedList<Node> nodesToRemove = new LinkedList<>();
+		for (Node n : unconnectedNodes){
+			if (n.color != -1){
+				nodesToRemove.add(n);
+			}
+		}
+		unconnectedNodes.removeAll(nodesToRemove);
+		while (unconnectedNodes.size() > 0){
+			LinkedList<Node> connectedNodes = new LinkedList<>();
+			for (Coordinate c : getConnectedCoordinates(unconnectedNodes.get(0).location)){
+				connectedNodes.add(nodes[c.x][c.y]);
+			}
+			connectedAreas.add(new ArrayList<>(connectedNodes));
+			unconnectedNodes.removeAll(connectedNodes);
+		}
+		return connectedAreas;
+	}
+	
 	public boolean fatalError(){
 		return hasUBend();
 	}
