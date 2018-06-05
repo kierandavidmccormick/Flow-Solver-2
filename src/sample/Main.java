@@ -10,6 +10,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+
 public class Main extends Application {
 	
 	public static int DIM = 10;
@@ -49,8 +51,7 @@ public class Main extends Application {
 	    // **** ADD TESTS BELOW HERE:
 	    //f.addLBends();
 	    f.addAllCertainMoves();
-	    f.nodes[5][7].checkConnections(true);
-	    //f.nodes[0][0].actualizeConnection(f.nodes[1][0], true);
+	    ArrayList<Node[]> nodeAr = f.getWorkingNodes();
 	    // **** AND ABOVE HERE
 	    setGUIElements(f);
 	    createGUIElements(circleArray);

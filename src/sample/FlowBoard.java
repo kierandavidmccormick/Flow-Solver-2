@@ -174,6 +174,28 @@ public class FlowBoard {
 		return true;
 	}
 	*/
+	
+	public ArrayList<Node[]> getWorkingNodes(){
+		ArrayList<Node[]> workingNodes = new ArrayList<>();
+		for (Node n : getAllNodes()){
+			if (((n.isEnd && n.actualConnections.size() == 0) || (!n.isEnd && n.actualConnections.size() == 1)) && n.color != -1){
+				boolean inArray = false;
+				for (Node[] ar : workingNodes){
+					if (ar[0] != null && ar[0].color == n.color){
+						ar[1] = n;
+						inArray = true;
+						break;
+					}
+				}
+				if (!inArray) {
+					Node[] no = {n, null};
+					workingNodes.add(no);
+				}
+			}
+		}
+		return workingNodes;
+	}
+	
 	public boolean fatalError(){
 		return hasUBend();
 	}
