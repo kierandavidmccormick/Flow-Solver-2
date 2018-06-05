@@ -175,6 +175,35 @@ public class FlowBoard {
 	}
 	*/
 	
+	public boolean connectionsValid(){
+		//each workingNode connected to its pair, and no unconnected nodes in an area without at least one full pair of connected coordinates
+		ArrayList<Node[]> workingNodes = getWorkingNodes();
+		ArrayList<ArrayList<Node>> connectedAreas = getConnectedAreas();
+		ArrayList<Boolean> areasHavePairs = new ArrayList<>(connectedAreas.size());
+		for (Node[] ar : workingNodes){
+			for (ArrayList<Node> nodeAr : connectedAreas){
+				if ((!nodeAr.contains(ar[0]) && !nodeAr.contains(ar[1]))){
+					areasHavePairs.add(false);
+					continue;
+				} else if ((nodeAr.contains(ar[0]) && nodeAr.contains(ar[1]))){
+					areasHavePairs.add(true);
+					continue;
+				}
+				return false;
+			}
+		}
+		for (int i = 0; i < connectedAreas.size(); i++){
+			if (!areasHavePairs.get(i)){
+				for (Node n : connectedAreas.get(i)){
+					if (n.color == -1) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
 	public ArrayList<Node[]> getWorkingNodes(){
 		ArrayList<Node[]> workingNodes = new ArrayList<>();
 		for (Node n : getAllNodes()){
@@ -218,7 +247,7 @@ public class FlowBoard {
 	}
 	
 	public boolean fatalError(){
-		return hasUBend();
+		return hasUBend() && connectionsValid();
 	}
 	
 	public void addLBends(){
