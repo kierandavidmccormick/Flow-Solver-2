@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class Main extends Application {
 	
 	public static int DIM = 10;
+	public static Main main;
 	Group circles = new Group();
 	Group lines = new Group();
 	Group root = new Group(circles, lines);
@@ -23,6 +24,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+    	Main.main = this;
 	    for (int i = 0; i < DIM; i++){
 		    for (int j = 0; j < DIM; j++){
 			    circleArray[i][j] = new Circle(i * 50 + 25, j * 50 + 25, 5, Color.GRAY);
@@ -46,8 +48,8 @@ public class Main extends Application {
 	    root.getChildren().add(0, background);
 	    circles.toFront();
 	    //FlowBoard f = new FlowBoard(0,0,4,0, 0,1,6,0, 2,1,4,2, 6,1,0,4, 2,3,5,5, 0,2,4,5);          //7x7 c: trivial n: trivial
-	    FlowBoard f = new FlowBoard(0,0,4,4, 1,1,2,4, 1,2,2,7, 2,1,5,6, 3,1,2,6, 4,7,7,2);       //10x10 c: nontrivial but pretty good n: nontrivial
-	    //FlowBoard f = new FlowBoard(0,0,2,6, 2,2,3,1, 1,3,9,6, 3,2,8,4, 2,3,6,3, 1,4,6,8, 5,0,9,0, 3,3,6,4, 1,7,8,5, 1,8,4,9, 5,6,8,8, 0,7,1,9);        //10x10 c: trivial n:
+	    //FlowBoard f = new FlowBoard(0,0,4,4, 1,1,2,4, 1,2,2,7, 2,1,5,6, 3,1,2,6, 4,7,7,2);       //10x10 c: nontrivial but pretty good n: nontrivial
+	    FlowBoard f = new FlowBoard(0,0,2,6, 2,2,3,1, 1,3,9,6, 3,2,8,4, 2,3,6,3, 1,4,6,8, 5,0,9,0, 3,3,6,4, 1,7,8,5, 1,8,4,9, 5,6,8,8, 0,7,1,9);        //10x10 c: trivial n: trivial
 	    // **** ADD TESTS BELOW HERE:
 	    //f.addLBends();
 	    f.addAllCertainMoves();
@@ -61,6 +63,11 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    
+	public void setBoard(FlowBoard f){
+    	setGUIElements(f);
+    	createGUIElements(circleArray);
+	}
     
     public void setGUIElements(FlowBoard f){
     	for (int i = 0; i < DIM; i++){

@@ -71,7 +71,7 @@ public class FlowBoard {
 		}
 		return false;
 	}
-	
+	/*
 	public LinkedList<Coordinate> getConnectedCoordinates(Coordinate start){
 		boolean[][] inValidNodes = new boolean[nodes.length][nodes[0].length];
 		LinkedList<Coordinate> edgeCoordinates = new LinkedList<>();
@@ -100,7 +100,38 @@ public class FlowBoard {
 		}
 		return connectedCoordinates;
 	}
+	*/
 	
+	public LinkedList<Coordinate> getConnectedCoordinates(Coordinate start){        //assumes start is empty
+		LinkedList<Node> unconnectedNodes = new LinkedList<>();
+		LinkedList<Node> edgeNodes = new LinkedList<>();
+		LinkedList<Coordinate> connectedCoordinates = new LinkedList<>();
+		edgeNodes.add(nodes[start.x][start.y]);
+		while (edgeNodes.size() > 0){
+			Node node = edgeNodes.get(0);
+			edgeNodes.remove(node);
+			connectedCoordinates.add(node.location);
+			if (node.color == -1) {
+				//edgeNodes.addAll(node.actualConnections);
+				for (Node n : node.actualConnections){
+					if (!unconnectedNodes.contains(n)){
+						edgeNodes.add(n);
+						unconnectedNodes.add(n);
+					}
+				}
+				//edgeNodes.addAll(node.potentialConnections);
+				for (Node n : node.potentialConnections){
+					if (!unconnectedNodes.contains(n)){
+						edgeNodes.add(n);
+						unconnectedNodes.add(n);
+					}
+				}
+			}
+		}
+		return connectedCoordinates;
+	}
+	
+	/*
 	public Boolean connected(Coordinate start, Coordinate end){
 		boolean[][] inValidNodes = new boolean[nodes.length][nodes[0].length];
 		LinkedList<Coordinate> edgeCoordinates = new LinkedList<>();
@@ -120,6 +151,7 @@ public class FlowBoard {
 		}
 		return false;
 	}
+	*/
 	/*      //TODO: adapt this to a lack of flows, workingNode tracking, etc.
 	public Boolean allNodesReachable(){
 		boolean[][][] inValidNodes = new boolean[nodes.length][nodes[0].length][2];
@@ -181,16 +213,25 @@ public class FlowBoard {
 		ArrayList<ArrayList<Node>> connectedAreas = getConnectedAreas();
 		ArrayList<Boolean> areasHavePairs = new ArrayList<>(connectedAreas.size());
 		for (Node[] ar : workingNodes){
+			boolean workingNodeConnected = false;
 			for (ArrayList<Node> nodeAr : connectedAreas){
-				if ((!nodeAr.contains(ar[0]) && !nodeAr.contains(ar[1]))){
-					areasHavePairs.add(false);
-					continue;
-				} else if ((nodeAr.contains(ar[0]) && nodeAr.contains(ar[1]))){
-					areasHavePairs.add(true);
-					continue;
+				if ((nodeAr.contains(ar[0]) && nodeAr.contains(ar[1]))){
+					workingNodeConnected = true;
 				}
+			}
+			if (!workingNodeConnected){
 				return false;
 			}
+		}
+		for (ArrayList<Node> area : connectedAreas){
+			boolean hasPair = false;
+			for (Node[] ar : workingNodes){
+				if (area.contains(ar[1]) && area.contains(ar[0])){
+					hasPair = true;
+					break;
+				}
+			}
+			areasHavePairs.add(hasPair);
 		}
 		for (int i = 0; i < connectedAreas.size(); i++){
 			if (!areasHavePairs.get(i)){
@@ -204,25 +245,94 @@ public class FlowBoard {
 		return true;
 	}
 	
-	public ArrayList<Node[]> getWorkingNodes(){
-		ArrayList<Node[]> workingNodes = new ArrayList<>();
-		for (Node n : getAllNodes()){
-			if (((n.isEnd && n.actualConnections.size() == 0) || (!n.isEnd && n.actualConnections.size() == 1)) && n.color != -1){
-				boolean inArray = false;
-				for (Node[] ar : workingNodes){
-					if (ar[0] != null && ar[0].color == n.color){
-						ar[1] = n;
-						inArray = true;
-						break;
-					}
+	public int connectionsValid2(){
+		//each workingNode connected to its pair, and no unconnected nodes in an area without at least one full pair of connected coordinates
+		ArrayList<Node[]> workingNodes = getWorkingNodes();
+		ArrayList<ArrayList<Node>> connectedAreas = getConnectedAreas();
+		ArrayList<Boolean> areasHavePairs = new ArrayList<>(connectedAreas.size());
+		for (Node[] ar : workingNodes){
+			boolean workingNodeConnected = false;
+			for (ArrayList<Node> nodeAr : connectedAreas){
+				if ((nodeAr.contains(ar[0]) && nodeAr.contains(ar[1]))){
+					workingNodeConnected = true;
 				}
-				if (!inArray) {
-					Node[] no = {n, null};
-					workingNodes.add(no);
+			}
+			if (!workingNodeConnected){
+				return ar[0].color;
+			}
+		}
+		for (ArrayList<Node> area : connectedAreas){
+			boolean hasPair = false;
+			for (Node[] ar : workingNodes){
+				if (area.contains(ar[1]) && area.contains(ar[0])){
+					hasPair = true;
+					break;
+				}
+			}
+			areasHavePairs.add(hasPair);
+		}
+		for (int i = 0; i < connectedAreas.size(); i++){
+			if (!areasHavePairs.get(i)){
+				for (Node n : connectedAreas.get(i)){
+					if (n.color == -1) {
+						return -2;
+					}
 				}
 			}
 		}
+		return -3;
+	}
+	
+	public ArrayList<Node[]> getWorkingNodes(){
+		ArrayList<Node[]> workingNodes = new ArrayList<>();
+		//LinkedList<Node> nullWorkingNodes = new LinkedList<>();
+		for (Node n : getAllNodes()){
+			if (((n.isEnd && n.actualConnections.size() == 0) || (!n.isEnd && n.actualConnections.size() == 1))) {
+				if (n.color != -1) {
+					boolean inArray = false;
+					for (Node[] ar : workingNodes) {
+						if (ar[0] != null && ar[0].color == n.color) {
+							ar[1] = n;
+							inArray = true;
+							break;
+						}
+					}
+					if (!inArray) {
+						Node[] no = {n, null};
+						workingNodes.add(no);
+					}
+				}
+			}// else {
+			//	nullWorkingNodes.add(n);
+			//}
+		}
+		//workingNodes.add((Node[])nullWorkingNodes.toArray());
+		for (Node[] nodeAr : workingNodes){
+			if (nodeAr[1] == null){
+				int i = 0;
+			}
+		}
 		return workingNodes;
+	}
+	
+	public String[] getCrudeVisual(){
+		String[] strings = new String[Main.DIM];
+		for (int i = 0; i < Main.DIM; i++){
+			StringBuilder stringBuilder = new StringBuilder(Main.DIM);
+			for (int j = 0; j < Main.DIM; j++){
+				if (nodes[j][i].color == -1){
+					stringBuilder.append('_');
+				} else {
+					String n = (nodes[j][i].color < 10 ? ((Integer)(int)nodes[j][i].color).toString() : "e");
+					stringBuilder.append(n);
+					if (n.length() != 1){
+						strings[0] = "!!!!!!!!!! " + i  + " " + j + " " + n;
+					}
+				}
+			}
+			strings[i] = stringBuilder.toString();
+		}
+		return strings;
 	}
 	
 	public ArrayList<ArrayList<Node>> getConnectedAreas(){
@@ -240,6 +350,9 @@ public class FlowBoard {
 			for (Coordinate c : getConnectedCoordinates(unconnectedNodes.get(0).location)){
 				connectedNodes.add(nodes[c.x][c.y]);
 			}
+			if (!connectedNodes.contains(unconnectedNodes.get(0))){
+				connectedNodes.add(unconnectedNodes.get(0));
+			}
 			connectedAreas.add(new ArrayList<>(connectedNodes));
 			unconnectedNodes.removeAll(connectedNodes);
 		}
@@ -247,7 +360,7 @@ public class FlowBoard {
 	}
 	
 	public boolean fatalError(){
-		return hasUBend() && connectionsValid();
+		return hasUBend() || !connectionsValid();
 	}
 	
 	public void addLBends(){
@@ -265,7 +378,7 @@ public class FlowBoard {
 	
 	public void checkAll(){
 		for (Node n : getAllNodes()){
-			n.checkConnections(true);
+			n.checkConnections();
 		}
 	}
 	
@@ -316,6 +429,7 @@ public class FlowBoard {
 			connectionsToDelete1.clear();
 			connectionsToDelete2.clear();
 			newBoards = new LinkedList<>(getApplicableChildren(connectionsToDelete1, connectionsToDelete2));
+			int i = 0;
 		}
 	}
 }

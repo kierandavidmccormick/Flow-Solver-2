@@ -65,4 +65,5 @@ public class Coordinate extends Object {
 	public Boolean isEmpty(FlowBoard f){
 		return f.nodes[x][y] == null || f.nodes[x][y].color == -1;
 	}
+	
 }

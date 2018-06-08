@@ -74,8 +74,8 @@ public class Node {
 			n.color = this.color;
 		}
 		if (check){
-			checkConnections(true);
-			n.checkConnections(true);
+			checkConnections();
+			n.checkConnections();
 		}
 	}
 	
@@ -85,83 +85,45 @@ public class Node {
 		n.actualConnections.remove(this);
 		n.potentialConnections.remove(this);
 		if (check){
-			checkConnections(true);
-			n.checkConnections(true);
+			checkConnections();
+			n.checkConnections();           //edit below method to always check connections for both
 		}
 	}
 	
-	public void checkConnections(boolean spread){
-		//if has potential connection to another node of a different color, kill that connection
-		//if has potential connection to another node of the same color, actualize that connection
-		//if sum of actual connections and potential connections is max, convert all potential connections into actual connections
-		//if has max actual connections, delete all other potential connections
-		
-		LinkedList<Node> modified = new LinkedList<>();
-		LinkedList<Node> toActualize = new LinkedList<>();
-		LinkedList<Node> toDisConnect = new LinkedList<>();
+	public void checkConnections(){
 		for (Node n : potentialConnections) {
-			int i = 0;
 			if (color != -1 && n.color != -1) {
 				if (color != n.color) {
-					toDisConnect.add(n);
+					disConnect(n, true);
+					return;
 				} else {
-					toActualize.add(n);
+					actualizeConnection(n, true);
+					return;
 				}
-				modified.add(n);
 			}
 		}
 		for (Node n : actualConnections){
 			if (color != n.color){
 				if (color != -1){
 					n.color = color;
-					if (!modified.contains(n)){
-						modified.add(n);
-					}
 				} else {
 					color = n.color;
-					if (!modified.contains(this)){
-						modified.add(this);         //questionable, but works
-					}
 				}
+				checkConnections();
+				n.checkConnections();
+				return;
 			}
 		}
-		for (Node n : toDisConnect){
-			disConnect(n, false);
+		if (potentialConnections.size() + actualConnections.size() == (isEnd ? 1 : 2) && potentialConnections.size() > 0){
+			actualizeConnection(potentialConnections.get(0), true);
+			return;
 		}
-		for (Node n : toActualize){
-			actualizeConnection(n, false);
-		}
-		toActualize.clear();
-		toDisConnect.clear();
-		if (potentialConnections.size() + actualConnections.size() == (isEnd ? 1 : 2)){
-			for (Node n : potentialConnections){
-				toActualize.add(n);
-				if (!modified.contains(n)) {
-					modified.add(n);
-				}
-			}
-		}
-		for (Node n : toActualize){
-			actualizeConnection(n, false);
-		}
-		if (actualConnections.size() == (isEnd ? 1 : 2)){
-			for (Node n : potentialConnections){
-				toDisConnect.add(n);
-				if (!modified.contains(n)) {
-					modified.add(n);
-				}
-			}
-		}
-		for (Node n : toDisConnect){
-			disConnect(n, false);
+		if (actualConnections.size() == (isEnd ? 1 : 2) && potentialConnections.size() > 0){
+			disConnect(potentialConnections.get(0), true);
 		}
 		
-		if (spread) {
-			for (Node n : modified) {
-				n.checkConnections(true);
-			}
-		}
 	}
+	
 	public boolean addLBend(FlowBoard f){
 		Coordinate bendC = hasLBend();
 		if (bendC != null){
@@ -236,6 +198,7 @@ public class Node {
 	
 	public Collection<FlowBoard> getBoardChildren(FlowBoard f, LinkedList<Node> connectionsToDelete){      //assumes connectionsToDelete is permanent beyond method termination and empty
 		LinkedList<FlowBoard> newBoards = new LinkedList<>();
+		FlowBoard boardKilled = null;
 		for (Node n : potentialConnections){
 			FlowBoard newBoard = new FlowBoard(f);
 			newBoard.nodes[location.x][location.y].actualizeConnection(newBoard.nodes[n.location.x][n.location.y], true);
@@ -243,8 +206,18 @@ public class Node {
 				newBoards.add(newBoard);
 			} else {
 				connectionsToDelete.add(n);
+				if (!newBoard.hasUBend()){
+					boardKilled = newBoard;
+				}
 			}
 		}
+		//if (newBoards.size() == 0 && boardKilled != null){
+		//	Main.main.setBoard(boardKilled);
+		//}
 		return newBoards;
+	}
+	
+	public String toString(){
+		return "N: " + location.toString();
 	}
 }
