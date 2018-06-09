@@ -71,36 +71,6 @@ public class FlowBoard {
 		}
 		return false;
 	}
-	/*
-	public LinkedList<Coordinate> getConnectedCoordinates(Coordinate start){
-		boolean[][] inValidNodes = new boolean[nodes.length][nodes[0].length];
-		LinkedList<Coordinate> edgeCoordinates = new LinkedList<>();
-		edgeCoordinates.add(start);
-		while(edgeCoordinates.size() > 0){
-			Coordinate c = edgeCoordinates.get(0);
-			edgeCoordinates.remove(0);
-			for (Direction d : Direction.directions) {
-				Coordinate c2 = c.add(d.toCoordinate());
-				if (c2.isInBounds() && !inValidNodes[c2.x][c2.y]){      //new
-					inValidNodes[c2.x][c2.y] = true;
-					if (c2.isEmpty(this)){
-						edgeCoordinates.add(c2);
-					}
-				}
-			}
-			
-		}
-		LinkedList<Coordinate> connectedCoordinates = new LinkedList<>();
-		for (int i = 0; i < inValidNodes.length; i++){
-			for (int j = 0; j < inValidNodes[0].length; j++){
-				if (inValidNodes[i][j]){
-					connectedCoordinates.add(new Coordinate(i, j));
-				}
-			}
-		}
-		return connectedCoordinates;
-	}
-	*/
 	
 	public LinkedList<Coordinate> getConnectedCoordinates(Coordinate start){        //assumes start is empty
 		LinkedList<Node> unconnectedNodes = new LinkedList<>();
@@ -130,82 +100,6 @@ public class FlowBoard {
 		}
 		return connectedCoordinates;
 	}
-	
-	/*
-	public Boolean connected(Coordinate start, Coordinate end){
-		boolean[][] inValidNodes = new boolean[nodes.length][nodes[0].length];
-		LinkedList<Coordinate> edgeCoordinates = new LinkedList<>();
-		edgeCoordinates.add(start);
-		while(edgeCoordinates.size() > 0){
-			Coordinate c = edgeCoordinates.get(0);
-			edgeCoordinates.remove(0);
-			for (Direction d : Direction.directions) {
-				Coordinate c2 = c.add(d.toCoordinate());
-				if (c2.equals(end)){
-					return true;
-				} else if (c2.isInBounds() && c2.isEmpty(this) && !inValidNodes[c2.x][c2.y]) {
-					edgeCoordinates.add(c2);
-					inValidNodes[c2.x][c2.y] = true;
-				}
-			}
-		}
-		return false;
-	}
-	*/
-	/*      //TODO: adapt this to a lack of flows, workingNode tracking, etc.
-	public Boolean allNodesReachable(){
-		boolean[][][] inValidNodes = new boolean[nodes.length][nodes[0].length][2];
-		LinkedList<Coordinate> connectedCoordinates = new LinkedList<>();
-		for (Flow f : flows){
-			if (f.workingNodes.size() > 0){
-				connectedCoordinates.addAll(getConnectedCoordinates(f.workingNodes.get(0).loc));
-				break;
-			}
-		}
-		for (Coordinate coordinate : connectedCoordinates) {
-			inValidNodes[coordinate.x][coordinate.y][0] = true;
-		}
-		connectedCoordinates.clear();
-		for (Flow f : flows){
-			if (f.workingNodes.size() > 1){
-				connectedCoordinates.addAll(getConnectedCoordinates(f.workingNodes.get(1).loc));
-				break;
-			}
-		}
-		for (Coordinate coordinate : connectedCoordinates) {
-			inValidNodes[coordinate.x][coordinate.y][1] = true;
-		}
-		LinkedList<Coordinate> unConnectedCoordinates = new LinkedList<>();
-		for (int i = 0; i < inValidNodes.length; i++) {
-			for (int j = 0; j < inValidNodes[0].length; j++) {
-				if (!(inValidNodes[i][j][0] && inValidNodes[i][j][1]) && !nodes[i][j].isSolved) {        //new
-					unConnectedCoordinates.add(new Coordinate(i, j));
-				}
-			}
-		}
-		for (int i = 0; i < unConnectedCoordinates.size(); i++){
-			boolean isConnected = false;
-			for (Flow flow : flows){
-				if (!flow.isSolved){
-					if (connected(flow.workingNodes.get(0).loc, unConnectedCoordinates.get(0)) && connected(flow.workingNodes.get(1).loc, unConnectedCoordinates.get(0))) {
-						unConnectedCoordinates.removeAll(getConnectedCoordinates(unConnectedCoordinates.get(0)));
-						if (unConnectedCoordinates.size() == 0){
-							return true;
-						}
-						unConnectedCoordinates.remove(0);
-						i = 0;
-						isConnected = true;
-						break;
-					}
-				}
-			}
-			if (!isConnected){
-				return false;
-			}
-		}
-		return true;
-	}
-	*/
 	
 	public boolean connectionsValid(){
 		//each workingNode connected to its pair, and no unconnected nodes in an area without at least one full pair of connected coordinates
@@ -381,6 +275,9 @@ public class FlowBoard {
 			n.checkConnections();
 		}
 	}
+	public boolean isSolved(){
+		return connectionsValid() && getWorkingNodes().equals(new ArrayList<Node[]>());
+	}
 	
 	public Collection<Node> getAllNodes(){
 		ArrayList<Node> nodesList = new ArrayList<>(nodes.length * nodes[0].length);
@@ -431,5 +328,20 @@ public class FlowBoard {
 			newBoards = new LinkedList<>(getApplicableChildren(connectionsToDelete1, connectionsToDelete2));
 			int i = 0;
 		}
+	}
+	
+	public int hashCode(){
+		int result = 17;
+		result = result * 31 + Arrays.deepHashCode(nodes);
+		return result;
+	}
+	
+	public boolean equals(Object o){
+		if (o == this){
+			return true;
+		} else if (o instanceof FlowBoard){
+			return o.hashCode() == hashCode();
+		}
+		return false;
 	}
 }

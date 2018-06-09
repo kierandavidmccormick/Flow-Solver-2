@@ -2,7 +2,6 @@ package sample;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 /**
@@ -37,6 +36,19 @@ public class Node {
 		color = n.color;
 		isEnd = n.isEnd;
 		location = new Coordinate(n.location.x, n.location.y);
+	}
+	
+	public int hashCode(){
+		int result = 17;
+		result = 31 * result + color;
+		result = 31 * result + location.hashCode();
+		for (Node n : actualConnections){
+			result = 31 * result + n.location.hashCode();
+		}
+		for (Node n : potentialConnections){
+			result = 31 * result + n.location.hashCode();
+		}
+		return result;
 	}
 	
 	public boolean equals(Object o){
@@ -86,7 +98,7 @@ public class Node {
 		n.potentialConnections.remove(this);
 		if (check){
 			checkConnections();
-			n.checkConnections();           //edit below method to always check connections for both
+			n.checkConnections();
 		}
 	}
 	

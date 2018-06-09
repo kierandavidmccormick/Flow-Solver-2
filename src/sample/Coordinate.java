@@ -3,7 +3,7 @@ package sample;
 /**
  * Created by kieranmccormick on 6/1/18.
  */
-public class Coordinate extends Object {
+public class Coordinate {
 	public byte x;
 	public byte y;
 	
