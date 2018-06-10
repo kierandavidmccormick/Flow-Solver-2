@@ -48,6 +48,8 @@ public class FlowBoard {
 		}
 	}
 	
+	public FlowBoard(){	}
+	
 	public void connectAll(){
 		for (int i = 0; i < Main.DIM; i++){
 			for (int j = 0; j < Main.DIM; j++){
@@ -201,11 +203,6 @@ public class FlowBoard {
 			//}
 		}
 		//workingNodes.add((Node[])nullWorkingNodes.toArray());
-		for (Node[] nodeAr : workingNodes){
-			if (nodeAr[1] == null){
-				int i = 0;
-			}
-		}
 		return workingNodes;
 	}
 	
@@ -294,9 +291,11 @@ public class FlowBoard {
 			if (n.potentialConnections.size() >= 2) {
 				LinkedList<Node> connectionsToDeleteTemp = new LinkedList<>();
 				LinkedList<FlowBoard> newBoardsTemp = new LinkedList<>(n.getBoardChildren(this, connectionsToDeleteTemp));
-				for (Node toDelete : connectionsToDeleteTemp){
-					connectionsToDelete1.add(n);
-					connectionsToDelete2.add(toDelete);
+				if (connectionsToDelete1 != null && connectionsToDelete2 != null) {         //should not be needed- indicates bug elsewhere
+					for (Node toDelete : connectionsToDeleteTemp) {
+						connectionsToDelete1.add(n);
+						connectionsToDelete2.add(toDelete);
+					}
 				}
 				if (newBoardsTemp.size() == 0) {
 					return new HashSet<>(0);
@@ -326,11 +325,13 @@ public class FlowBoard {
 			connectionsToDelete1.clear();
 			connectionsToDelete2.clear();
 			newBoards = new LinkedList<>(getApplicableChildren(connectionsToDelete1, connectionsToDelete2));
-			int i = 0;
 		}
 	}
 	
 	public int hashCode(){
+		if (nodes == null){
+			return 0;
+		}
 		int result = 17;
 		result = result * 31 + Arrays.deepHashCode(nodes);
 		return result;
@@ -343,5 +344,17 @@ public class FlowBoard {
 			return o.hashCode() == hashCode();
 		}
 		return false;
+	}
+	
+	public FlowBoard getSolvedVersion(){
+		Arbor arbor = new Arbor(this);
+		if (isSolved()){
+			return this;
+		}
+		FlowBoard f;
+		do {
+			f = arbor.genNextBoards();
+		} while (f == null);
+		return f;
 	}
 }
